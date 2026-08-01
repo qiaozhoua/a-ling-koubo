@@ -1,0 +1,61 @@
+{
+  "video": {
+    "eyebrow": "阿玲口播",
+    "title": "把复杂内容讲清楚",
+    "subtitle": "真人出镜 · 信息叠层",
+    "applyGrade": false,
+    "duration": 12.6
+  },
+  "subs": [
+    { "start": 0.0, "end": 2.4, "cn": "一条好的**口播**先把结论讲清楚", "en": "Start with the point" },
+    { "start": 2.4, "end": 4.8, "cn": "再把内容拆成**三步**", "en": "Then three clear steps" },
+    { "start": 4.8, "end": 7.2, "cn": "字幕跟上节奏", "en": "Subtitles follow speech" },
+    { "start": 7.2, "end": 9.8, "cn": "信息卡让重点**一眼看见**", "en": "Cards show the takeaway" },
+    { "start": 9.8, "end": 12.6, "cn": "先看预览 再出**成片**", "en": "Preview, then final" }
+  ],
+  "chapters": [
+    { "start": 0.0, "end": 4.8, "no": "01", "label": "先讲结论", "en": "POINT" },
+    { "start": 4.8, "end": 9.8, "no": "02", "label": "强化重点", "en": "FOCUS" },
+    { "start": 9.8, "end": 12.6, "no": "03", "label": "预览交付", "en": "SHIP" }
+  ],
+  "cards": [
+    {
+      "start": 0.4,
+      "end": 3.2,
+      "kind": "quote",
+      "label": "先把结论讲清楚",
+      "en": "LEAD",
+      "note": "前三秒决定观众要不要留下",
+      "accent": "coral"
+    },
+    {
+      "start": 3.2,
+      "end": 6.6,
+      "kind": "steps",
+      "label": "复杂内容三步走",
+      "en": "THREE STEPS",
+      "items": ["结论", "解释", "行动"],
+      "accent": "teal"
+    },
+    {
+      "start": 6.6,
+      "end": 10.0,
+      "kind": "list",
+      "label": "画面只服务理解",
+      "en": "HIERARCHY",
+      "items": ["字幕跟节奏", "卡片讲重点", "人物是主体"],
+      "accent": "ink"
+    },
+    {
+      "start": 10.0,
+      "end": 12.6,
+      "kind": "compare",
+      "label": "两阶段交付",
+      "en": "TWO STAGE",
+      "left": { "label": "先确认", "value": "预览" },
+      "right": { "label": "再交付", "value": "成片" },
+      "accent": "sand"
+    }
+  ],
+  "sfx": []
+}
