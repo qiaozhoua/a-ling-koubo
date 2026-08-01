@@ -1,0 +1,338 @@
+<!--
+  阿玲口播 · 16:9 HyperFrames 骨架（原创）
+  复制到工作目录 public/index.html 后，按 beats.json 填入时长、字幕、章节、卡片。
+  依赖：同目录上级可放 gsap（CDN 或 public/vendor/gsap.min.js）
+-->
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>阿玲口播</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ink: #1a2332;
+        --ink-soft: rgba(26, 35, 50, 0.88);
+        --coral: #ff6b4a;
+        --teal: #2a9d8f;
+        --sand: #e9c46a;
+        --cream: #f7f1e8;
+        --muted: rgba(247, 241, 232, 0.62);
+        --panel: rgba(26, 35, 50, 0.82);
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0e1218;
+        color: var(--cream);
+        font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      video#bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      video#bg.grade {
+        filter: brightness(1.04) contrast(1.06) saturate(1.02);
+      }
+      .chrome {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+      }
+      .top-block {
+        position: absolute;
+        top: 56px;
+        left: 72px;
+        max-width: 980px;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--coral);
+        font-weight: 700;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 36px;
+        height: 3px;
+        background: var(--coral);
+      }
+      .title {
+        margin: 10px 0 0;
+        font-size: 72px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-shadow: 0 4px 28px rgba(0, 0, 0, 0.45);
+      }
+      .subtitle {
+        margin-top: 8px;
+        font-size: 26px;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+      }
+      .chapter-row {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin-top: 22px;
+      }
+      .chapter-no {
+        font-size: 40px;
+        font-weight: 800;
+        color: var(--coral);
+        font-variant-numeric: tabular-nums;
+      }
+      .chapter-label {
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .chapter-en {
+        font-size: 16px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+      }
+      .progress {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .progress i {
+        display: block;
+        width: 48px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(247, 241, 232, 0.2);
+      }
+      .progress i.on {
+        background: var(--coral);
+      }
+      .card {
+        position: absolute;
+        right: 72px;
+        bottom: 200px;
+        width: 520px;
+        padding: 28px 28px 28px 32px;
+        background: var(--panel);
+        border: 1px solid rgba(247, 241, 232, 0.12);
+        border-radius: 4px;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: var(--accent, var(--coral));
+        border-radius: 4px 0 0 4px;
+      }
+      .card[data-accent="teal"] { --accent: var(--teal); }
+      .card[data-accent="ink"] { --accent: #8fa3bf; }
+      .card[data-accent="sand"] { --accent: var(--sand); }
+      .card[data-accent="coral"] { --accent: var(--coral); }
+      .card-kicker {
+        font-size: 14px;
+        letter-spacing: 0.24em;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .card-label {
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 14px;
+      }
+      .card-value {
+        font-size: 64px;
+        font-weight: 800;
+        color: var(--accent, var(--coral));
+        line-height: 1;
+      }
+      .card-value small {
+        font-size: 28px;
+        margin-left: 6px;
+        color: var(--cream);
+      }
+      .card-note, .card ul {
+        font-size: 24px;
+        line-height: 1.45;
+        color: var(--cream);
+      }
+      .card ul {
+        margin: 0;
+        padding-left: 1.1em;
+      }
+      .card li { margin: 0.25em 0; }
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .compare div {
+        background: rgba(247, 241, 232, 0.06);
+        padding: 16px;
+        border-radius: 4px;
+      }
+      .compare .k { font-size: 16px; color: var(--muted); letter-spacing: 0.12em; }
+      .compare .v { font-size: 36px; font-weight: 800; margin-top: 6px; }
+      /* Must beat .clip { inset:0 } — same element has both classes */
+      .subs.clip,
+      .subs {
+        position: absolute;
+        inset: auto;
+        left: 0;
+        right: 0;
+        top: auto;
+        bottom: 72px;
+        height: auto;
+        width: 100%;
+        text-align: center;
+        z-index: 8;
+        pointer-events: none;
+      }
+      .sub-line {
+        display: inline-block;
+        max-width: 1400px;
+        padding: 14px 28px;
+        background: var(--ink-soft);
+        border-radius: 4px;
+      }
+      .sub-cn {
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+      .sub-cn mark {
+        color: var(--sand);
+        background: none;
+        font-weight: 800;
+      }
+      .sub-en {
+        margin-top: 4px;
+        font-size: 22px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+      }
+      .clip { position: absolute; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="a-ling-koubo"
+      data-start="0"
+      data-duration="12.6"
+      data-fps="30"
+      data-width="1920"
+      data-height="1080"
+    >
+      <video
+        id="bg"
+        class=""
+        src="source.mp4"
+        muted
+        playsinline
+        data-start="0"
+        data-duration="12.6"
+        data-track-index="1"
+      ></video>
+
+      <audio
+        id="voice"
+        src="source.mp4"
+        data-start="0"
+        data-duration="12.6"
+        data-track-index="0"
+      ></audio>
+
+      <!-- 顶栏：常驻；章节文案由 Agent 按时间切换多个 clip 或脚本驱动 -->
+      <div class="chrome clip" data-start="0" data-duration="12.6" data-track-index="3">
+        <div class="top-block">
+          <div class="eyebrow">阿玲口播</div>
+          <h1 class="title">把复杂内容讲清楚</h1>
+          <div class="subtitle">真人出镜 · 信息叠层</div>
+          <div class="chapter-row">
+            <span class="chapter-no">01</span>
+            <span class="chapter-label">先讲结论</span>
+            <span class="chapter-en">POINT</span>
+          </div>
+          <div class="progress" aria-hidden="true">
+            <i class="on"></i><i></i><i></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 示例信息卡：复制并改 data-start / data-duration / 内容 -->
+      <section class="clip" data-start="0.4" data-duration="2.8" data-track-index="4">
+        <article class="card" data-accent="coral" id="card-0">
+          <div class="card-kicker">LEAD</div>
+          <div class="card-label">先把结论讲清楚</div>
+          <div class="card-note">前三秒决定观众要不要留下</div>
+        </article>
+      </section>
+
+      <section class="clip" data-start="3.2" data-duration="3.4" data-track-index="4">
+        <article class="card" data-accent="teal" id="card-1">
+          <div class="card-kicker">THREE STEPS</div>
+          <div class="card-label">复杂内容三步走</div>
+          <ul>
+            <li>结论</li>
+            <li>解释</li>
+            <li>行动</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- 字幕：每条一个 clip -->
+      <div class="subs clip" data-start="0" data-duration="2.4" data-track-index="10">
+        <div class="sub-line">
+          <div class="sub-cn">一条好的<mark>口播</mark>先把结论讲清楚</div>
+          <div class="sub-en">Start with the point</div>
+        </div>
+      </div>
+
+      <div class="subs clip" data-start="2.4" data-duration="2.4" data-track-index="10">
+        <div class="sub-line">
+          <div class="sub-cn">再把内容拆成<mark>三步</mark></div>
+          <div class="sub-en">Then three clear steps</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.from(".top-block", { x: -36, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.05);
+      document.querySelectorAll(".card").forEach((el, i) => {
+        const host = el.closest(".clip");
+        const start = parseFloat(host?.getAttribute("data-start") || "0");
+        tl.from(el, { y: 28, opacity: 0, duration: 0.45, ease: "power2.out" }, start);
+      });
+      document.querySelectorAll(".subs").forEach((el) => {
+        const start = parseFloat(el.getAttribute("data-start") || "0");
+        tl.from(el.querySelector(".sub-line"), { y: 16, opacity: 0, duration: 0.28, ease: "power2.out" }, start);
+      });
+      window.__timelines["a-ling-koubo"] = tl;
+    </script>
+  </body>
+</html>
